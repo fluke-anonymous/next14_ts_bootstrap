@@ -1,224 +1,192 @@
-'use client'
 import React, { useState } from 'react';
-import Box from '@mui/material/Box';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TablePagination from '@mui/material/TablePagination';
-import TableRow from '@mui/material/TableRow';
-import TableSortLabel from '@mui/material/TableSortLabel';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import Paper from '@mui/material/Paper';
-import Checkbox from '@mui/material/Checkbox';
-import IconButton from '@mui/material/IconButton';
-import Tooltip from '@mui/material/Tooltip';
-import DoneIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
-import AddIcon from '@mui/icons-material/Add';
-import TextField from '@mui/material/TextField';
-import { visuallyHidden } from '@mui/utils';
-type Props = {
-    rows: any;
-    headCells: any
+
+interface TableColumn {
+    key: string;
+    header: string;
 }
-const EnhancedTable = ({ rows, headCells }: Props) => {
-    const [order, setOrder] = useState('asc');
-    const [orderBy, setOrderBy] = useState('name');
-    const [selected, setSelected] = useState([]);
-    const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(5);
-    const [editMode, setEditMode] = useState(null);
-    const [newRowData, setNewRowData] = useState({
-        name: '',
-        calories: '',
-        fat: '',
-        carbs: '',
-        protein: '',
-    });
 
-    const handleRequestSort = (property: any) => {
-        const isAsc = orderBy === property && order === 'asc';
-        setOrder(isAsc ? 'desc' : 'asc');
-        setOrderBy(property);
-    };
+interface TableRow {
+    id: number;
+    [key: string]: string | number | Date | undefined;
+}
 
-    const handleChangePage = (_: any, newPage: any) => {
-        setPage(newPage);
-    };
+interface TableProps {
+    data: TableRow[];
+    columns: TableColumn[];
+}
 
-    const handleChangeRowsPerPage = (event: any) => {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
-    };
-
-    const handleClick = (_: any, id: any) => {
-        const selectedIndex = selected.indexOf(id);
-        let newSelected: any = [];
-
-        if (selectedIndex === -1) {
-            newSelected = newSelected.concat(selected, id);
-        } else if (selectedIndex === 0) {
-            newSelected = newSelected.concat(selected.slice(1));
-        } else if (selectedIndex === selected.length - 1) {
-            newSelected = newSelected.concat(selected.slice(0, -1));
-        } else if (selectedIndex > 0) {
-            newSelected = newSelected.concat(
-                selected.slice(0, selectedIndex),
-                selected.slice(selectedIndex + 1)
-            );
-        }
-
-        setSelected(newSelected);
-    };
-
-    const handleEditClick = (id: any) => {
-        setEditMode(id);
-    };
-
-    const handleEditChange = (e: any, id: any, field: any) => {
-        const newData = [...rows];
-        const index = newData.findIndex((row) => row.id === id);
-        newData[index][field] = e.target.value;
-        rows[index] = newData[index];
-    };
-
-    const handleEditCancel = () => {
-        setEditMode(null);
-    };
+const TableComponent: React.FC<TableProps> = ({ data, columns }) => {
+    const [rows, setRows] = useState<TableRow[]>(data);
+    const [pageSize, setPageSize] = useState<number>(5);
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const [sortKey, setSortKey] = useState<string>('');
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+    const [filters, setFilters] = useState<{ [key: string]: string }>({});
 
     const handleAddRow = () => {
-        const id = rows.length + 1;
-        rows.push({
-            id,
-            ...newRowData,
+        const newRow: TableRow = { id: rows.length + 1 };
+        columns.forEach(column => {
+            if (column.key === 'date') {
+                newRow[column.key] = new Date(); // Initialize date column with current date
+            } else {
+                newRow[column.key] = ''; // Initialize other columns with an empty string
+            }
         });
-        setNewRowData({
-            name: '',
-            calories: '',
-            fat: '',
-            carbs: '',
-            protein: '',
-        });
+        setRows([...rows, newRow]);
     };
 
-    const isSelected = (id: any) => selected.indexOf(id) !== -1;
+    const handleTextChange = (id: number, key: string, value: string) => {
+        const updatedRows = rows.map(row => (row.id === id ? { ...row, [key]: value } : row));
+        setRows(updatedRows);
+    };
+
+    const handleNumberChange = (id: number, key: string, value: number) => {
+        const updatedRows = rows.map(row => (row.id === id ? { ...row, [key]: value } : row));
+        setRows(updatedRows);
+    };
+
+    const handleDateChange = (id: number, key: string, value: Date) => {
+        const updatedRows = rows.map(row => (row.id === id ? { ...row, [key]: value } : row));
+        setRows(updatedRows);
+    };
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+    };
+
+    const handleSort = (key: string) => {
+        if (sortKey === key) {
+            setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortKey(key);
+            setSortOrder('asc');
+        }
+    };
+
+    const handleFilterChange = (key: string, value: string) => {
+        setFilters({ ...filters, [key]: value });
+    };
+
+    const applyFilters = () => {
+        let filteredRows = data.slice(); // Create a copy of the original data
+
+        // Apply each filter
+        columns.forEach(column => {
+            const filterValue = filters[column.key]?.toLowerCase();
+            if (filterValue) {
+                filteredRows = filteredRows.filter(row =>
+                    String(row[column.key]).toLowerCase().includes(filterValue)
+                );
+            }
+        });
+
+        setRows(filteredRows);
+    };
+
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const sortedRows = sortKey ? [...rows].sort((a, b) => {
+        if (sortOrder === 'asc') {
+            return a[sortKey] > b[sortKey] ? 1 : -1;
+        } else {
+            return a[sortKey] < b[sortKey] ? 1 : -1;
+        }
+    }) : rows;
+
+    const currentRows = sortedRows.slice(startIndex, endIndex);
 
     return (
-        <Paper>
-            <Toolbar>
-                <Typography variant="h6" id="tableTitle" component="div">
-                    Add
-                </Typography>
-                <Tooltip title="Add">
-                    <IconButton onClick={handleAddRow}>
-                        <AddIcon />
-                    </IconButton>
-                </Tooltip>
-            </Toolbar>
-            <TableContainer>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell padding="checkbox" style={{ backgroundColor: '#D5F5FE', border: '2px solid #A9EBFF ' }}>
-                                <Checkbox />
-                            </TableCell>
-                            {headCells.map((headCell: any) => (
-                                <TableCell key={headCell.id} style={{ backgroundColor: '#D5F5FE', border: '2px solid #A9EBFF ' }}>
-                                    <TableSortLabel
-                                        active={orderBy === headCell.id}
-                                        direction={orderBy === headCell.id ? order : 'asc'}
-                                        onClick={() => handleRequestSort(headCell.id)}
-                                    >
-                                        {headCell.label}
-                                        {orderBy === headCell.id ? (
-                                            <Box component="span" sx={visuallyHidden}>
-                                                {order === 'desc'
-                                                    ? 'sorted descending'
-                                                    : 'sorted ascending'}
-                                            </Box>
-                                        ) : null}
-                                    </TableSortLabel>
-                                </TableCell>
+        <div>
+            <button onClick={handleAddRow}>Add Row</button>
+            <table>
+                <thead>
+                    <tr>
+                        {columns.map(column => (
+                            <th key={column.key} onClick={() => handleSort(column.key)}>
+                                {column.header} {sortKey === column.key && (
+                                    <span>{sortOrder === 'asc' ? '▲' : '▼'}</span>
+                                )}
+                            </th>
+                        ))}
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        {columns.map(column => (
+                            <th key={column.key}>
+                                <input
+                                    key={column.key}
+                                    type="text"
+                                    placeholder={`Filter ${column.header}`}
+                                    value={filters[column.key] || ''}
+                                    onChange={(e) => handleFilterChange(column.key, e.target.value)}
+                                    onBlur={applyFilters}
+                                />
+                            </th>
+                        ))}
+                    </tr>
+                    {currentRows.map(row => (
+                        <tr key={row.id}>
+                            {columns.map(column => (
+                                <td key={column.key}>
+                                    {column.key === 'date' ? (
+                                        <input
+                                            type="date"
+                                            value={row[column.key]?.toISOString().split('T')[0] || ''}
+                                            onChange={(e) => handleDateChange(row.id, column.key, new Date(e.target.value))}
+                                        />
+                                    ) : (
+                                        <input
+                                            type="text"
+                                            value={row[column.key] as string}
+                                            onChange={(e) => handleTextChange(row.id, column.key, e.target.value)}
+                                        />
+                                    )}
+                                </td>
                             ))}
-                            <TableCell style={{ backgroundColor: '#D5F5FE', border: '2px solid #A9EBFF ' }}>Edit</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {rows
-                            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                            .map((row: any) => {
-                                const isItemSelected = isSelected(row.id);
-                                const labelId = `enhanced-table-checkbox-${row.id}`;
-
-                                return (
-                                    <TableRow
-                                        key={row.id}
-                                        hover
-                                        onClick={(event) => handleClick(event, row.id)}
-                                        role="checkbox"
-                                        aria-checked={isItemSelected}
-                                        tabIndex={-1}
-                                        selected={isItemSelected}
-                                    >
-                                        <TableCell padding="checkbox" style={{ backgroundColor: row.color, border: '2px solid #e9ecf2 ' }}>
-                                            <Checkbox
-                                                checked={isItemSelected}
-                                                inputProps={{ 'aria-labelledby': labelId }}
-                                            />
-                                        </TableCell>
-                                        {headCells.map((cell: any) => (
-                                            <TableCell
-                                                key={cell.id}
-                                                style={{ color: cell.numeric ? 'red' : 'green', backgroundColor: headCells.disabled ? '#e9ecf2' : row.color, border: '2px solid #e9ecf2 ' }}
-                                            >
-                                                {editMode === row.id ? (
-                                                    <TextField
-                                                        value={row[cell.id]}
-                                                        onChange={(e) =>
-                                                            handleEditChange(e, row.id, cell.id)
-                                                        }
-                                                    />
-                                                ) : (
-                                                    row[cell.id]
-                                                )}
-                                            </TableCell>
-                                        ))}
-                                        <TableCell style={{ backgroundColor: row.color, border: '2px solid #e9ecf2 ' }}>
-                                            {editMode === row.id ? (
-                                                <div>
-                                                    <IconButton onClick={handleEditCancel}>
-                                                        <DoneIcon />
-                                                    </IconButton>
-                                                    <IconButton>
-                                                        <EditIcon />
-                                                    </IconButton>
-                                                </div>
-                                            ) : (
-                                                <IconButton onClick={() => handleEditClick(row.id)}>
-                                                    <EditIcon />
-                                                </IconButton>
-                                            )}
-                                        </TableCell>
-                                    </TableRow>
-                                );
-                            })}
-                    </TableBody>
-                </Table>
-            </TableContainer>
-            <TablePagination
-                rowsPerPageOptions={[5, 10, 25]}
-                component="div"
-                count={rows.length}
-                rowsPerPage={rowsPerPage}
-                page={page}
-                onPageChange={handleChangePage}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-            />
-        </Paper>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+            <select value={pageSize} onChange={(e) => setPageSize(parseInt(e.target.value))}>
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+            </select>
+            <Pagination currentPage={currentPage} pageSize={pageSize} totalItems={rows.length} onPageChange={handlePageChange} />
+        </div>
     );
 };
 
-export default EnhancedTable;
+interface PaginationProps {
+    currentPage: number;
+    pageSize: number;
+    totalItems: number;
+    onPageChange: (page: number) => void;
+}
+
+const Pagination: React.FC<PaginationProps> = ({ currentPage, pageSize, totalItems, onPageChange }) => {
+    const totalPages = Math.ceil(totalItems / pageSize);
+
+    const handlePrevClick = () => {
+        if (currentPage > 1) {
+            onPageChange(currentPage - 1);
+        }
+    };
+
+    const handleNextClick = () => {
+        if (currentPage < totalPages) {
+            onPageChange(currentPage + 1);
+        }
+    };
+
+    return (
+        <div>
+            <button onClick={handlePrevClick} disabled={currentPage === 1}>Prev</button>
+            <span>{currentPage} / {totalPages}</span>
+            <button onClick={handleNextClick} disabled={currentPage === totalPages}>Next</button>
+        </div>
+    );
+};
+
+export default TableComponent;

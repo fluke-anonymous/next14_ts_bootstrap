@@ -1,45 +1,27 @@
-import React from 'react'
-import Table from '@/components/table/table'
+// App.js
+'use client'
+import React, { useState, useEffect } from 'react';
+import Table from '@/components/table/table';
 
-interface Props {
 
-}
-const page = (props: Props) => {
+const Page = () => {
     const data = [
-        {
-            id: 1, name: 'John Doe', age: 30, dob: new Date('1990-01-01'), selected: true,
-            color: '#f2f2f0'
-        },
-        { id: 2, name: 'Jane Smith', age: 25, dob: new Date('1995-05-15'), selected: true, color: '#f2f2f0' },
-    ];
-    const columns = [
-        {
-            header: 'id',
-            key: 'ID',
-            label: 'ID',
-            type: 'text',
-            disabled: true
-        },
-        {
-            header: 'name',
-            key: 'Name',
-            label: 'Name',
-            type: 'text',
-            disabled: true
-        },
-        {
-            header: 'dob',
-            key: 'Dob',
-            label: 'Dob',
-            type: 'text',
-            disabled: false
-        },
-    ];
-    return (
-        <div className='m-5'>
-            <Table headCells={columns} rows={data}></Table>
+        { id: 1, text: 'Text 1', number: 10, date: new Date('2024-05-17') },
+        { id: 2, text: 'Text 2', number: 20, date: new Date('2024-05-18') },
+        // Add more data as needed
+      ];
+    
+      const columns = [
+        { key: 'text', header: 'Text' },
+        { key: 'number', header: 'Number' },
+        { key: 'date', header: 'Date' },
+      ];
+    
+      return (
+        <div>
+          <Table data={data} columns={columns} />
         </div>
-    )
-}
+      );
+    };
 
-export default page
+export default Page;

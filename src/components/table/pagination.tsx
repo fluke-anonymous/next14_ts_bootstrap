@@ -1,14 +1,13 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-type Props = {
+import { Pagination } from 'react-bootstrap';
 
-}
-const pagination = (props: Props) => {
-    return (
-        <div>
-            pagination
-        </div>
-    )
-}
-
-export default pagination
+const PaginationComponent = () => {
+  return (
+    <Pagination>
+      <Pagination.Prev />
+      <Pagination.Item>{1}</Pagination.Item>
+      <Pagination.Item>{2}</Pagination.Item>
+      <Pagination.Item>{3}</Pagination.Item>
+      <Pagination.Next />
+    </Pagination>
+  );
+};
