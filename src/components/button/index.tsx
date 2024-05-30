@@ -1,29 +1,21 @@
-// Button.tsx
-
-import React, { FC } from 'react';
-
-// Define the props interface
-interface ButtonProps {
-  label: string;
-  onClick?: () => void; // Optional onClick function
-  disabled?: boolean; // Optional disabled state
-  color: string;
-  textColor: string;
+// Button.js
+import React from 'react';
+type Props = {
+    color: string,
+    textColor: string,
+    onClick: () => void,
+    label: string,
+    id: string,
+    disabled?: boolean
 }
+const Button = ({ color, textColor, onClick, label, id, disabled }: Props) => {
+    const className = `btn text-${textColor} btn-${color} g-0`
 
-// Define the Button component
-const Button: FC<ButtonProps> = ({color,textColor, label, onClick, disabled }) => {
-  const handleClick = () => {
-    if (onClick) {
-      onClick();
-    }
-  };
-  const className = `btn btn-${color} text-${textColor}`;
-  return (
-    <button className={className} onClick={handleClick} disabled={disabled}>
-      {label}
-    </button>
-  );
+    return (
+        <div>
+            <input type="submit" className={className} onClick={onClick} id={id} name={id} value={label} disabled={disabled} readOnly />
+        </div>
+    );
 };
 
 export default Button;
