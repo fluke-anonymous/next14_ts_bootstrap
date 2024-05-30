@@ -2,6 +2,8 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import Inputtext from '@/components/inputtext/index'
+import Button from '@/components/button/index'; // Importing the Button component
+
 const page = () => {
     const [name, setName] = useState<string>('');
   
@@ -12,7 +14,13 @@ const page = () => {
 
   const handleNameChange = (newValue: string) => {
     setName(newValue);
+    console.log(newValue)
   };
+
+  const handleBtnDelete = () => {
+    () => console.log('Item deleted!')
+    setName('')
+  }
 
   return (
     <div>
@@ -24,6 +32,12 @@ const page = () => {
         onChange={handleNameChange}
         validate={validateName}
         required // Adding required prop
+      />
+      <Button
+        color="primary"
+        textColor="light"
+        label="Delete"
+        onClick={()=>handleBtnDelete}
       />
     </div>
   );
