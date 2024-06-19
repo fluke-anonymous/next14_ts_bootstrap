@@ -9,12 +9,15 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ant-design/cssinjs": "^1.21.0",
+    "@ant-design/nextjs-registry": "^1.0.0",
     "@reduxjs/toolkit": "^2.2.4",
+    "antd": "^5.18.2",
     "bootstrap": "^5.3.3",
     "date-fns": "^3.6.0",
     "jquery": "^3.7.1",
     "next": "14.2.3",
-    "pnpm": "^9.1.4",
+    "pnpm": "^9.4.0",
     "popper": "^1.0.1",
     "primeflex": "^3.3.1",
     "primeicons": "^7.0.0",

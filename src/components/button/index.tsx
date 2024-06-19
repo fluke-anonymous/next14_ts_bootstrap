@@ -1,21 +1,27 @@
-// Button.js
 import React from 'react';
-type Props = {
-    color: string,
-    textColor: string,
-    onClick: () => void,
-    label: string,
-    id: string,
-    disabled?: boolean
-}
-const Button = ({ color, textColor, onClick, label, id, disabled }: Props) => {
-    const className = `btn text-${textColor} btn-${color} g-0`
+import { Button } from 'antd';
 
-    return (
-        <div>
-            <input type="submit" className={className} onClick={onClick} id={id} name={id} value={label} disabled={disabled} readOnly />
-        </div>
-    );
+type Props = {
+    varaint: 'outline'|'contain';
+  icon: React.ReactNode;
+  color: string;
+  textColor: string;
+  label: string;
+  disabled?: boolean;
+  onClick?: () => void;
 };
 
-export default Button;
+const ButtonComponent: React.FC<Props> = ({ icon, color, textColor, label, disabled, onClick }) => {
+  return (
+    <Button
+      style={{ backgroundColor: color, color: textColor, padding: "2px" ,margin: '2px' }}
+      icon={icon}
+      disabled={disabled}
+      onClick={onClick}
+    >
+      {label}
+    </Button>
+  );
+};
+
+export default ButtonComponent;

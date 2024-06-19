@@ -1,3 +1,7 @@
+/* Example of globals.css */
+@import 'bootstrap/dist/css/bootstrap.min.css';
+/* Add more global styles if needed */
+
 :root {
   --max-width: 1100px;
   --border-radius: 12px;
