@@ -1,8 +1,4 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {
-  antd: {
-    import: true,
-  },
-};
+const nextConfig = {};
 
 export default nextConfig;

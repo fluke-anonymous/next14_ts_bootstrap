@@ -1,6 +1,6 @@
 import React from "react";
-import { Select } from 'antd';
-import { SelectProps } from 'antd/lib/select';
+import { Select } from "antd";
+import { SelectProps } from "antd/lib/select";
 
 type Props = {
   label: string;
@@ -9,23 +9,23 @@ type Props = {
   optionLabel?: string;
   optionValue?: string;
   required?: boolean;
-  validated?:  (value: string) => boolean;  // Adjust the return type as per your validation function
+  validated?: (value: string) => boolean; // Adjust the return type as per your validation function
   disabled?: boolean;
-  onChange?: (value: string[]) => void;  // Define onChange prop
+  onChange?: (value: string[]) => void; // Define onChange prop
 };
 
 const MultiSelectSearch: React.FC<Props> = ({
   label,
   value,
   options,
-  optionLabel = 'name',
-  optionValue = 'code',
+  optionLabel = "name",
+  optionValue = "code",
   required,
   validated,
   disabled,
-  onChange,  // Destructure onChange prop
+  onChange, // Destructure onChange prop
 }: Props) => {
-  const antdOptions: SelectProps['options'] = options.map(opt => ({
+  const antdOptions: SelectProps["options"] = options.map((opt) => ({
     value: opt[optionValue],
     label: opt[optionLabel],
   }));
@@ -33,7 +33,7 @@ const MultiSelectSearch: React.FC<Props> = ({
   const handleChange = (selectedValues: string[]) => {
     console.log(`selected ${selectedValues}`);
     if (onChange) {
-      onChange(selectedValues);  // Call onChange prop if provided
+      onChange(selectedValues); // Call onChange prop if provided
     }
   };
 
@@ -46,15 +46,15 @@ const MultiSelectSearch: React.FC<Props> = ({
       )}
       <Select
         mode="tags"
-        style={{ width: '100%' }}
-        value={value}  // Ensure value is an array
-        onChange={(value)=>handleChange(value)}
-        tokenSeparators={[',']}
+        style={{ width: "100%" }}
+        value={value} // Ensure value is an array
+        onChange={(value) => handleChange(value)}
+        tokenSeparators={[","]}
         options={antdOptions}
         disabled={disabled}
         required={required}
       />
-       {required && validated && !value && (
+      {required && validated && !value && (
         <div className="text-danger">Please enter {label}</div>
       )}
 

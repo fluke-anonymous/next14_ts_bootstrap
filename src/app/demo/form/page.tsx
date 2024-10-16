@@ -2,9 +2,11 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Inputtext from "@/components/inputtext/index";
-import SelectSearch from "@/components/MutiSelectSearch";
+import MultiSelectSearch from "@/components/MutiSelectSearch";
+import SingleSelectSearch from "@/components/selectSearch";
+
 import Button from "@/components/button"; // Importing the Button component
-import { UserOutlined } from '@ant-design/icons';
+import { UserOutlined } from "@ant-design/icons";
 
 const page = () => {
   const [name, setName] = useState<string>("");
@@ -25,7 +27,7 @@ const page = () => {
   };
 
   // Select Search
-  const [selectOptions, setSelectOption] = useState("");
+  const [MultiSelectOptions, setMultiSelectOption] = useState("");
   const cities = [
     { name: "New York", code: "NY" },
     { name: "Rome", code: "RM" },
@@ -34,9 +36,14 @@ const page = () => {
     { name: "Paris", code: "PRS" },
   ];
 
-const handleSelectChange = (value:any) => {
-setSelectOption(value)
-}
+  const handleSelectChange = (value: any) => {
+    setMultiSelectOption(value);
+  };
+
+  const [selectOptions, setSelectOption] = useState("");
+  const handleSingleSelectChange = (value: any) => {
+    setSelectOption(value);
+  };
 
   return (
     <div className="container p-5">
@@ -49,24 +56,43 @@ setSelectOption(value)
             label="Name"
             value={selectOptions}
             placeholder="Enter your name"
-            onChange={(value)=>handleNameChange(value)}
+            onChange={(value) => handleNameChange(value)}
             validate={validateName}
             required // Adding required prop
           />
         </div>
         <div>
-          <SelectSearch
+          <MultiSelectSearch
             label="Country"
-            value={selectOptions}
+            value={MultiSelectOptions}
             options={cities}
             optionLabel="name"
             optionValue="code"
-            onChange={(value)=>handleSelectChange(value)}
+            onChange={(value) => handleSelectChange(value)}
             required
           />
         </div>
         <div>
-        <Button color="#ff0000" textColor="#f8f8f8" icon={<UserOutlined />} onClick={handleBtnDelete} label="Click Me"/>
+          <SingleSelectSearch
+            label="Select Option"
+            value={selectOptions}
+            options={cities}
+            optionLabel="name"
+            optionValue="code"
+            onChange={(value) => handleSingleSelectChange(value)}
+            required
+            validated={() => {}}
+            disabled={false}
+          />
+        </div>
+        <div>
+          <Button
+            color="#ff0000"
+            textColor="#f8f8f8"
+            icon={<UserOutlined />}
+            onClick={handleBtnDelete}
+            label="Click Me"
+          />
         </div>
       </div>
     </div>
